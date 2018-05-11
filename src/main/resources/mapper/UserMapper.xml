@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.cloud.jlzm.mapper.UserMapper">
+  <resultMap type="User" id="userResultMap">
+    <result property="userId" column="user_id"/>
+    <result property="deptId" column="dept_id"/>
+    <result property="userName" column="user_nm"/>
+    <result property="kanaName" column="kana_nm"/>
+    <result property="password" column="password"/>
+    <result property="genDiv" column="gen_div"/>
+    <result property="htelNo" column="htel_no"/>
+    <result property="famReg" column="fam_reg"/>
+    <result property="addr" column="addr"/>
+    <result property="edct" column="edct"/>
+    <result property="gradtSchl" column="gradt_schl"/>
+    <result property="spec" column="spec"/>
+    <result property="gradtDate" column="gradt_date"/>
+    <result property="jpLv" column="jp_lv"/>
+    <result property="enLv" column="en_lv"/>
+    <result property="entcomDate" column="entcom_date"/>
+    <result property="attdncChkSgn" column="attdnc_chk_sgn"/>
+    <result property="atthCd" column="atth_cd"/>
+    <result property="empDiv" column="emp_div"/>
+    <result property="lvjobDate" column="lvjob_date"/>
+    <result property="delSgn" column="del_sgn"/>
+    <result property="addBy" column="add_by"/>
+    <result property="addDate" column="add_date"/>
+    <result property="updBy" column="upd_by"/>
+    <result property="updDate" column="upd_date"/>
+    <result property="lockVerCnt" column="lock_ver_cnt"/>
+    <result property="taxprc" column="taxprc"/>
+    <result property="passportNo" column="passport_no"/>
+    <result property="expDate" column="exp_date"/>
+    <result property="birthday" column="birthday"/>
+    <result property="jpClass" column="jp_class"/>
+    <result property="jpDate" column="jp_date"/>
+    <result property="enDate" column="en_date"/>
+    <result property="jpExMm" column="jp_ex_mm"/>
+    <result property="idCard" column="id_card"/>
+    <result property="email" column="email"/>    
+  </resultMap>
+
+  <resultMap type="UserDto" id="userDtoResultMap">
+    <result property="id" column="HIDDEN_ID"/>
+    <result property="userName" column="USER_NM"/>
+    <result property="deptName" column="DEPT_SMPL_NM"/>
+    <result property="genDiv" column="GEN_DIV"/>
+    <result property="accessionDate" column="ENTCOM_YMD"/>
+    <result property="education" column="EDCT"/>
+    <result property="japaneseLevel" column="CODE_NAME_EN"/>
+    <result property="delSgn" column="DEL_SGN"/>
+    <result property="phoneNumber" column="HTEL_NO"/>
+    <result property="birthday" column="BIRTHDAY"/>
+    <result property="graduateDate" column="GRADT_YMD"/>
+    <result property="empDiv" column="EMP_DIV"/>
+    <result property="jpDate" column="JP_DATE"/>
+  </resultMap>
+
+  <select id="selectAllUsers" resultMap="userDtoResultMap">
+    SELECT
+    CONCAT(T1.USER_ID, ' ', T1.USER_NM) AS USER_NM,
+    T1.USER_ID AS HIDDEN_ID,
+    T2.DEPT_SMPL_NM,
+    T3.CODE_NAME AS GEN_DIV,
+    T1.ENTCOM_YMD,
+    T4.CODE_NAME AS EDCT,
+    T5.CODE_NAME AS CODE_NAME_EN,
+		T6.CODE_NAME AS DEL_SGN,
+		T1.HTEL_NO,
+		T1.BIRTHDAY,
+		T1.GRADT_YMD,
+		T7.CODE_NAME AS EMP_DIV,
+		T1.JP_DATE
+    from TR_USER T1
+    LEFT JOIN TR_DEPT T2 ON T1.DEPT_ID=T2.DEPT_ID AND T2.DEL_SGN='0'
+    LEFT JOIN CD_MASTER T3 ON T1.GEN_DIV=T3.CODE AND T3.TYPE_EN='GenDiv'
+    LEFT JOIN CD_MASTER T4 ON T1.EDCT=T4.CODE AND T4.TYPE_EN='Diploma'
+    LEFT JOIN  CD_MASTER T5 ON T1.JP_LV=T5.CODE AND T5.TYPE_EN='JpLv'
+		LEFT JOIN CD_MASTER T6 ON T1.DEL_SGN = T6.CODE AND T6.TYPE_EN ='IncumbencyDiv'
+    LEFT JOIN CD_MASTER T7 ON T1.EMP_DIV=T7.CODE AND T7.TYPE_EN='EmpDiv'
+    <where>
+      <if test="deptId!=null and deptId!='9999999' ">
+        and T1.dept_id=#{deptId}
+      </if>
+      <if test="userId!=null and userId!=''">
+        and T1.USER_ID=#{userId}
+      </if>
+      <if test="empDiv!=null and empDiv!=''">
+        and T1.EMP_DIV=#{empDiv}
+      </if>
+      <if test="jpLv!=null and jpLv!=''">
+        and T1.JP_LV=#{jpLv}
+      </if>
+      <if test="incumbencyDiv!=null and incumbencyDiv!=''">
+        and T1.DEL_SGN=#{incumbencyDiv}
+      </if>
+    </where>
+    ORDER BY T1.USER_ID
+  </select>
+
+  <select id="selectCount" resultType="java.lang.Integer">
+    select count(*) from tr_user
+  </select>
+  
+  <select id="selectUserByUserId" resultMap="userResultMap">
+    select * from tr_user
+    <where>
+      user_id=#{userId}
+    </where>
+  </select>
+
+  <select id="selectRoleIdByUserId" resultType="java.lang.Integer">
+    select atth_cd from tr_user
+    <where>
+      user_id=#{userId}
+    </where>
+  </select>
+  
+</mapper>

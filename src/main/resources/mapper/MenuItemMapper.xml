@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.cloud.jlzm.mapper.MenuItemMapper">
+  <resultMap type="MenuItem" id="menuResultMap">
+    <id property="menuId" column="menu_id1" />
+    <id property="name" column="name1" />
+    <id property="icon" column="icon1" />
+    <collection property="children" ofType="MenuItem">
+      <id property="menuId" column="menu_id2" />
+      <id property="name" column="name2" />
+      <id property="url" column="url" />
+      <id property="icon" column="icon2" />
+    </collection>
+  </resultMap>
+
+  <select id="getMenuList" resultMap="menuResultMap">
+    SELECT 
+      A.menu_id AS menu_id1, 
+      A.p_id AS p_id1, 
+      A.name AS name1, 
+      A.icon AS icon1,
+      B.menu_id AS menu_id2,
+      B.name AS name2, 
+      B.url AS url,
+      B.icon AS icon2
+    FROM
+      (SELECT * FROM menu_list WHERE p_id=0) AS A
+    INNER JOIN
+      (SELECT * FROM menu_list WHERE p_id in (SELECT menu_id FROM menu_list WHERE p_id=0)) AS B 
+    ON A.menu_id=B.p_id AND B.lv &lt;= #{lv}
+    ORDER BY A.menu_id,B.menu_id;
+  </select>
+</mapper>
